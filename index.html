@@ -1,85 +1,317 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Zalo Notification Service</title>
+    <title>Zalo Notification Service Panel</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f6f8; padding: 20px; color: #333;}
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px;}
-        .card h2 { margin-top: 0; color: #0056d2; font-size: 20px;}
-        .badge { background: #e6f4ea; color: #137333; padding: 5px 10px; border-radius: 4px; font-weight: 600; font-size: 14px; font-family: monospace;}
-        
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px;}
-        .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Segoe UI', sans-serif; font-size: 14px; box-sizing: border-box;}
-        textarea.form-control { resize: vertical; min-height: 80px;}
-        
-        .test-btn { background: #0056d2; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 600; transition: background 0.2s;}
-        .test-btn:hover { background: #0043a4; }
-        
-        .log-box { background: #1e1e1e; border: none; height: 200px; overflow-y: auto; padding: 15px; border-radius: 6px; font-size: 13px; line-height: 1.6; color: #d4d4d4; font-family: Consolas, monospace;}
-        .log-item { border-bottom: 1px solid #333; padding: 5px 0; }
-        .time { color: #569cd6; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: #0056d2;
+            font-size: 24px;
+        }
+
+        .status-badge {
+            background: #e6f4ea;
+            color: #137333;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #137333;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: #202124;
+        }
+
+        .stat-card.success .value {
+            color: #137333;
+        }
+
+        .stat-card.error .value {
+            color: #d93025;
+        }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #333;
+            font-size: 16px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .code-block .string {
+            color: #ce9178;
+        }
+
+        .code-block .keyword {
+            color: #569cd6;
+        }
+
+        .log-box {
+            background: #1e1e1e;
+            border: none;
+            height: 260px;
+            overflow-y: auto;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #d4d4d4;
+            font-family: Consolas, monospace;
+        }
+
+        .log-item {
+            border-bottom: 1px solid #333;
+            padding: 6px 0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .log-item .time {
+            color: #858585;
+            white-space: nowrap;
+        }
+
+        .log-item .msg {
+            color: #fff;
+        }
+
+        .log-item.success .msg {
+            color: #4CAF50;
+        }
+
+        .log-item.error .msg {
+            color: #F44336;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Mini test section */
+        .test-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #ccc;
+        }
+
+        .test-input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 12px;
+            width: 120px;
+        }
+
+        .test-btn {
+            background: #f1f3f4;
+            color: #333;
+            border: 1px solid #dadce0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .test-btn:hover {
+            background: #e8eaed;
+        }
     </style>
 </head>
+
 <body>
-    <div class="card">
-        <h2>System Configuration</h2>
-        <p>API Endpoint: <span class="badge">POST http://localhost:3000/send-msg</span></p>
+    <div class="header">
+        <h1>Zalo API Service Control Panel</h1>
+        <div class="status-badge"><span class="status-dot"></span> Đang chạy (Port 3000)</div>
     </div>
 
-    <div class="card">
-        <h2>API Testing</h2>
-        <div class="form-group">
-            <label>Target Phone / Tên người nhận:</label>
-            <input type="text" id="targetPhone" class="form-control" value="Cloud của tôi">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Tổng số Request API</h3>
+            <div class="value" id="stat-total">0</div>
         </div>
-        <div class="form-group">
-            <label>Message Content:</label>
-            <textarea id="targetMessage" class="form-control">Cảnh báo hệ thống:
-Dữ liệu đang được đồng bộ. Vui lòng không tắt máy!</textarea>
+        <div class="stat-card success">
+            <h3>Gửi Thành Công</h3>
+            <div class="value" id="stat-success">0</div>
         </div>
-        <button class="test-btn" onclick="testSend()">Gửi Request Giao Tiếp API</button>
+        <div class="stat-card error">
+            <h3>Gửi Lỗi</h3>
+            <div class="value" id="stat-error">0</div>
+        </div>
     </div>
 
-    <div class="card">
-        <h2 style="margin-bottom: 10px;">System Logs</h2>
-        <div class="log-box" id="logs">
-            <div class="log-item"><span class="time">[System]</span> Initializing service components...</div>
+    <div class="layout-grid">
+        <!-- Cột Trái: Tài liệu API -->
+        <div class="card">
+            <h2>Tài Liệu Tích Hợp (API Integration Docs)</h2>
+            <p style="font-size: 14px; color: #555;">Gửi HTTP POST Request tới endpoint bên dưới để ra lệnh cho phần mềm
+                gửi tin nhắn Zalo tự động.</p>
+            <div class="code-block">
+                <span class="keyword">POST</span> http://localhost:3000/send-msg
+                Content-Type: application/json
+
+                {
+                <span class="string">"phone"</span>: <span class="string">"01111111111"</span>,
+                <span class="string">"message"</span>: <span class="string">"Nội dung thông báo tự động..."</span>
+                }
+            </div>
+
+            <!-- Công cụ test nhanh thu gọn -->
+            <div class="test-section">
+                <span style="font-size: 13px; font-weight: 600; color: #555;">Công cụ Test Nhanh: </span>
+                <input type="text" id="testPhone" class="test-input" placeholder="SĐT hoặc Tên Zalo"
+                    value="Cloud của tôi">
+                <button class="test-btn" onclick="testSend()">Gửi Lệnh Test</button>
+            </div>
+        </div>
+
+        <!-- Cột Phải: Giám sát Log -->
+        <div class="card">
+            <h2>Giám Sát Hệ Thống (Live Monitor)</h2>
+            <div class="log-box" id="logs">
+                <div class="log-item">
+                    <span class="time">[System]</span>
+                    <span class="msg" style="color: #569cd6;">Service is listening and waiting for API
+                        requests...</span>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         const logsDiv = document.getElementById('logs');
-        
+        let total = 0, success = 0, err = 0;
+
         window.api.onLogInfo((text) => {
             const div = document.createElement('div');
-            div.className = 'log-item';
-            div.innerHTML = `<span class="time">[${new Date().toLocaleTimeString()}]</span> ${text}`;
+            let logType = '';
+            if (text.includes('[Thành Công]')) logType = 'success';
+            if (text.includes('[Thất Bại]') || text.includes('Error')) logType = 'error';
+
+            div.className = 'log-item ' + logType;
+            const timeStr = new Date().toLocaleTimeString('vi-VN', { hour12: false });
+            div.innerHTML = `<span class="time">[${timeStr}]</span> <span class="msg">${text}</span>`;
             logsDiv.prepend(div);
         });
 
-        async function testSend() {
-            const phone = document.getElementById('targetPhone').value.trim();
-            const message = document.getElementById('targetMessage').value.trim();
-
-            if (!phone || !message) {
-                alert("Vui lòng nhập đầy đủ SĐT và Nội dung!");
-                return;
+        window.api.onUpdateStats((data) => {
+            total++;
+            document.getElementById('stat-total').innerText = total;
+            if (data.type === 'success') {
+                success++;
+                document.getElementById('stat-success').innerText = success;
+            } else if (data.type === 'error') {
+                err++;
+                document.getElementById('stat-error').innerText = err;
             }
+        });
+
+        async function testSend() {
+            const phone = document.getElementById('testPhone').value.trim();
+            if (!phone) return alert("Vui lòng nhập đích đến!");
 
             try {
-                const res = await fetch('http://localhost:3000/send-msg', {
+                await fetch('http://localhost:3000/send-msg', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone, message })
+                    body: JSON.stringify({ phone, message: "Tin nhắn test từ hệ thống điều khiển trung tâm!" })
                 });
-                const data = await res.json();
-                console.log(data);
-            } catch(e) {
+            } catch (e) {
                 alert("API Error: " + e.message);
             }
         }
     </script>
 </body>
+
 </html>

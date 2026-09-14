@@ -32,16 +32,27 @@ expressApp.post('/send-msg', async (req, res) => {
         await playwrightPage.keyboard.press('A');
         await playwrightPage.keyboard.up('Control');
         await playwrightPage.keyboard.press('Backspace');
-        
+        // B2. Gõ số điện thoại (hoặc tên người dùng)
         await playwrightPage.locator('#contact-search-input').fill(phone);
-        await playwrightPage.waitForTimeout(1500);
+        await playwrightPage.waitForTimeout(1500); // Đợi Zalo loading kết quả tìm kiếm
         
-        // Automation: Select target contact
+        // B3. Bấm phím mũi tên Xuống để chọn người đầu tiên, rồi Enter mở Chat
         await playwrightPage.keyboard.press('ArrowDown');
         await playwrightPage.waitForTimeout(200);
         await playwrightPage.keyboard.press('Enter');
-        await playwrightPage.waitForTimeout(1000); 
+        await playwrightPage.waitForTimeout(1000); // Đợi giao diện chat bên phải mở ra
         
+        // 🛑 CHỐT CHẶN AN TOÀN: KIỂM TRA XEM CÓ TÌM THẤY NGƯỜI KHÔNG
+        // Nếu tìm thành công và chọn được người, Zalo sẽ tự đóng panel và xóa trắng ô tìm kiếm.
+        // Nếu ô tìm kiếm vẫn còn y nguyên số điện thoại => Tức là không tìm thấy ai!
+        const searchValue = await playwrightPage.locator('#contact-search-input').inputValue();
+        if (searchValue === phone) {
+            // Bấm Esc hoặc xóa trắng để thoát trạng thái tìm kiếm ảo
+            await playwrightPage.locator('#contact-search-input').fill('');
+            await playwrightPage.keyboard.press('Escape');
+            throw new Error('Không tìm thấy tài khoản Zalo của SĐT/Tên này (Bị chặn hoặc chưa đk)');
+        }
+
         // B4. Focus vào ô soạn tin nhắn và gõ chữ
         const chatInput = playwrightPage.locator('#richInput');
         await chatInput.click();
@@ -62,12 +73,18 @@ expressApp.post('/send-msg', async (req, res) => {
         await playwrightPage.waitForTimeout(500);
         await playwrightPage.keyboard.press('Enter');
 
-        if (mainWindow) mainWindow.webContents.send('log-info', `Success: Message sent to ${phone}`);
+        if (mainWindow) {
+            mainWindow.webContents.send('log-info', `[Thành Công] Đã gửi thông báo tới: ${phone}`);
+            mainWindow.webContents.send('update-stats', { type: 'success' });
+        }
         res.json({ success: true, message: 'Message sent successfully' });
 
     } catch (error) {
         console.error(error);
-        if (mainWindow) mainWindow.webContents.send('log-info', `Error: Failed to send to ${phone} - ${error.message}`);
+        if (mainWindow) {
+            mainWindow.webContents.send('log-info', `[Thất Bại] Lỗi khi gửi cho ${phone} - ${error.message}`);
+            mainWindow.webContents.send('update-stats', { type: 'error' });
+        }
         res.status(500).json({ success: false, error: error.message });
     }
 });
