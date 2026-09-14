@@ -1,18 +1,32 @@
 {
-    "name": "zalocrmtool",
+    "name": "zalo-api-service",
+    "productName": "Zalo API Service",
     "version": "1.0.0",
     "main": "main.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "electron ."
-    },
-    "keywords": [],
-    "author": "",
+    "description": "Phần mềm tự động hóa Zalo qua API",
+    "author": "IT Team",
     "license": "ISC",
-    "description": "",
+    "scripts": {
+        "start": "electron .",
+        "build": "npx electron-packager . \"Zalo API Service\" --platform=win32 --arch=x64 --icon=icon.ico --out=dist --overwrite"
+    },
+    "build": {
+        "appId": "com.company.zaloapiservice",
+        "win": {
+            "target": "portable"
+        },
+        "directories": {
+            "output": "dist"
+        }
+    },
     "dependencies": {
-        "electron": "^41.7.1",
         "express": "^5.2.1",
-        "playwright": "^1.63.0"
+        "playwright": "^1.63.0",
+        "png-to-ico": "^3.0.2",
+        "sharp": "^0.35.4"
+    },
+    "devDependencies": {
+        "electron": "^41.7.1",
+        "electron-builder": "^24.13.3"
     }
 }
