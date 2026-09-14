@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Zalo Notification Service</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f6f8; padding: 20px; color: #333;}
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px;}
+        .card h2 { margin-top: 0; color: #0056d2; font-size: 20px;}
+        .badge { background: #e6f4ea; color: #137333; padding: 5px 10px; border-radius: 4px; font-weight: 600; font-size: 14px; font-family: monospace;}
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px;}
+        .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Segoe UI', sans-serif; font-size: 14px; box-sizing: border-box;}
+        textarea.form-control { resize: vertical; min-height: 80px;}
+        
+        .test-btn { background: #0056d2; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 600; transition: background 0.2s;}
+        .test-btn:hover { background: #0043a4; }
+        
+        .log-box { background: #1e1e1e; border: none; height: 200px; overflow-y: auto; padding: 15px; border-radius: 6px; font-size: 13px; line-height: 1.6; color: #d4d4d4; font-family: Consolas, monospace;}
+        .log-item { border-bottom: 1px solid #333; padding: 5px 0; }
+        .time { color: #569cd6; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>System Configuration</h2>
+        <p>API Endpoint: <span class="badge">POST http://localhost:3000/send-msg</span></p>
+    </div>
+
+    <div class="card">
+        <h2>API Testing</h2>
+        <div class="form-group">
+            <label>Target Phone / Tên người nhận:</label>
+            <input type="text" id="targetPhone" class="form-control" value="Cloud của tôi">
+        </div>
+        <div class="form-group">
+            <label>Message Content:</label>
+            <textarea id="targetMessage" class="form-control">Cảnh báo hệ thống:
+Dữ liệu đang được đồng bộ. Vui lòng không tắt máy!</textarea>
+        </div>
+        <button class="test-btn" onclick="testSend()">Gửi Request Giao Tiếp API</button>
+    </div>
+
+    <div class="card">
+        <h2 style="margin-bottom: 10px;">System Logs</h2>
+        <div class="log-box" id="logs">
+            <div class="log-item"><span class="time">[System]</span> Initializing service components...</div>
+        </div>
+    </div>
+
+    <script>
+        const logsDiv = document.getElementById('logs');
+        
+        window.api.onLogInfo((text) => {
+            const div = document.createElement('div');
+            div.className = 'log-item';
+            div.innerHTML = `<span class="time">[${new Date().toLocaleTimeString()}]</span> ${text}`;
+            logsDiv.prepend(div);
+        });
+
+        async function testSend() {
+            const phone = document.getElementById('targetPhone').value.trim();
+            const message = document.getElementById('targetMessage').value.trim();
+
+            if (!phone || !message) {
+                alert("Vui lòng nhập đầy đủ SĐT và Nội dung!");
+                return;
+            }
+
+            try {
+                const res = await fetch('http://localhost:3000/send-msg', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, message })
+                });
+                const data = await res.json();
+                console.log(data);
+            } catch(e) {
+                alert("API Error: " + e.message);
+            }
+        }
+    </script>
+</body>
+</html>
